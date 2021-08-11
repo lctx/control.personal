@@ -12,24 +12,40 @@ using control.personal.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace control.personal
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            _env = env;
         }
 
         public IConfiguration Configuration { get; }
+        private readonly IWebHostEnvironment _env;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            if (_env.IsDevelopment())
+            {
+                services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseSqlite(
+                        Configuration.GetConnectionString("DefaultConnection")));
+            }
+            else
+            {
+                var serverVersion = new MariaDbServerVersion(new Version(10, 3, 30));
+                services.AddDbContext<ApplicationDbContext>(
+                    dbContextOptions => dbContextOptions
+                    .UseMySql(Configuration.GetConnectionString("ProductionConnection"), serverVersion)
+                    .EnableSensitiveDataLogging() // <-- These two calls are optional but help
+                    .EnableDetailedErrors()       // <-- with debugging (remove for production).
+                    );
+            }
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
