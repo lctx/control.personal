@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using control.personal.Data;
 
 namespace control.personal.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211011160142_identificacion y usuario modificados")]
+    partial class identificacionyusuariomodificados
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -184,31 +186,6 @@ namespace control.personal.Data.Migrations
                     b.ToTable("ControlIngreso");
                 });
 
-            modelBuilder.Entity("control.personal.Models.Identificacion", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Estado")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Tipo")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Uid")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("idUsuario")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("idUsuario");
-
-                    b.ToTable("Identificacion");
-                });
-
             modelBuilder.Entity("control.personal.Models.Registro", b =>
                 {
                     b.Property<int>("id")
@@ -363,17 +340,6 @@ namespace control.personal.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Registro");
-                });
-
-            modelBuilder.Entity("control.personal.Models.Identificacion", b =>
-                {
-                    b.HasOne("control.personal.Models.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("idUsuario")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("control.personal.Models.Registro", b =>
