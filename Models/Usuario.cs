@@ -10,7 +10,7 @@ namespace control.personal.Models
     //crear indice con validación unica de la cedula
     [Index(nameof(Cedula),IsUnique =true)]
     [Table("AspNetUsers")]
-    public class Usuario : IdentityUser<int>
+    public class Usuario : IdentityUser
     {
         [StringLength(10)]
         public string Cedula { get; set; }

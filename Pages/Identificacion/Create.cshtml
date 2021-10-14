@@ -1,0 +1,54 @@
+@page
+@model control.personal.Pages.Identificacion.CreateModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Create</title>
+</head>
+<body>
+
+<h4>Identificacion</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Identificacion.idUsuario" class="control-label"></label>
+                <select asp-for="Identificacion.idUsuario" class ="form-control" asp-items="ViewBag.idUsuario"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Identificacion.Uid" class="control-label"></label>
+                <input asp-for="Identificacion.Uid" class="form-control" />
+                <span asp-validation-for="Identificacion.Uid" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Identificacion.Estado" class="control-label"></label>
+                <select asp-for="Identificacion.Estado" class="form-control"></select>
+                <span asp-validation-for="Identificacion.Estado" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Identificacion.Tipo" class="control-label"></label>
+                <select asp-for="Identificacion.Tipo" class="form-control"></select>
+                <span asp-validation-for="Identificacion.Tipo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+</body>
+</html>

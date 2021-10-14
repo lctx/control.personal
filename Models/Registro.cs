@@ -10,7 +10,7 @@ namespace control.personal.Models
         [Key]
         public int id { get; set; }
         public DateTime FechaHora { get; set; }
-        public int idUsuario { get; set; }
+        public string idUsuario { get; set; }
         public virtual ControlIngreso ControlIngresos { get; set; }
 
         [ForeignKey("idUsuario")]

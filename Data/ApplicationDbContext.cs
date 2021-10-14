@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace control.personal.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<Usuario,IdentityRole<int>,int>
+    public class ApplicationDbContext : IdentityDbContext<Usuario>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

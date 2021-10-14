@@ -1,0 +1,45 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using control.personal.Data;
+using control.personal.Models;
+
+namespace control.personal.Pages.Identificacion
+{
+    public class CreateModel : PageModel
+    {
+        private readonly control.personal.Data.ApplicationDbContext _context;
+
+        public CreateModel(control.personal.Data.ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public IActionResult OnGet()
+        {
+        ViewData["idUsuario"] = new SelectList(_context.Users, "Id", "Id");
+            return Page();
+        }
+
+        [BindProperty]
+        public control.personal.Models.Identificacion Identificacion { get; set; }
+
+        // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            _context.Identificacion.Add(Identificacion);
+            await _context.SaveChangesAsync();
+
+            return RedirectToPage("./Index");
+        }
+    }
+}
