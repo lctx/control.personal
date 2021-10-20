@@ -1,9 +1,6 @@
 @page
 @model control.personal.Pages.Identificacion.IndexModel
 
-@{
-    Layout = null;
-}
 
 <!DOCTYPE html>
 
@@ -47,7 +44,7 @@
                 @Html.DisplayFor(modelItem => item.Tipo)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Usuario.Id)
+                @Html.DisplayFor(modelItem => item.Usuario.Nombre)
             </td>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.id">Edit</a> |

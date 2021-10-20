@@ -26,6 +26,7 @@ namespace control.personal.Data
         }*/
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<Identificacion>().Property(x => x.id).ValueGeneratedOnAdd();
             base.OnModelCreating(builder);
         }
     }

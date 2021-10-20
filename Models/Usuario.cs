@@ -15,6 +15,7 @@ namespace control.personal.Models
         [StringLength(10)]
         public string Cedula { get; set; }
         public string Nombre { get; set; }
+        public virtual List<Identificacion> Identificaciones { get; set; }
         public virtual List<Registro> Registros { get; set; }
     }
 }

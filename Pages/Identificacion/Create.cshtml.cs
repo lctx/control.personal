@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using control.personal.Data;
 using control.personal.Models;
+using control.personal.Utils;
 
 namespace control.personal.Pages.Identificacion
 {
@@ -21,7 +22,9 @@ namespace control.personal.Pages.Identificacion
 
         public IActionResult OnGet()
         {
-        ViewData["idUsuario"] = new SelectList(_context.Users, "Id", "Id");
+            ViewData["idUsuario"] = new SelectList(_context.Users, "Id", "Nombre");
+            ViewData["IdEstado"] = new SelectList(Enum.GetNames(typeof(EstadoIdentificacion)).ToList());
+            ViewData["IdTipo"] = new SelectList(Enum.GetNames(typeof(TipoRFID)).ToList());
             return Page();
         }
 

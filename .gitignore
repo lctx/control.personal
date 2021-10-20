@@ -352,6 +352,7 @@ MigrationBackup/
 
 #appsettings de producción
 appsettings.Production.json
+appsettings.Development.json
 app.db
 app.db-shm
 app.db-wal

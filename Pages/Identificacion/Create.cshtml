@@ -1,9 +1,7 @@
 @page
 @model control.personal.Pages.Identificacion.CreateModel
 
-@{
-    Layout = null;
-}
+
 
 <!DOCTYPE html>
 
@@ -31,12 +29,12 @@
             </div>
             <div class="form-group">
                 <label asp-for="Identificacion.Estado" class="control-label"></label>
-                <select asp-for="Identificacion.Estado" class="form-control"></select>
+                <select asp-for="Identificacion.Estado" class="form-control" asp-items="ViewBag.idEstado"></select>
                 <span asp-validation-for="Identificacion.Estado" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Identificacion.Tipo" class="control-label"></label>
-                <select asp-for="Identificacion.Tipo" class="form-control"></select>
+                <select asp-for="Identificacion.Tipo" class="form-control" asp-items="ViewBag.idTipo"></select>
                 <span asp-validation-for="Identificacion.Tipo" class="text-danger"></span>
             </div>
             <div class="form-group">

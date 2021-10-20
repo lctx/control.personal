@@ -17,6 +17,7 @@ using System.Text;
 using control.personal.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using control.personal.Services;
 
 namespace control.personal
 {
@@ -90,6 +91,8 @@ namespace control.personal
                 options.EnableEndpointRouting = false;
             });
             services.AddRazorPages();
+            services.AddHttpClient<TelegramService>
+                (x => x.BaseAddress= new Uri("http://api.telegram.org/bot"+Configuration["Telegram:Botid"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
