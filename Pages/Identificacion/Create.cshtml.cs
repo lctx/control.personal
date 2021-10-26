@@ -11,6 +11,9 @@ using control.personal.Utils;
 
 namespace control.personal.Pages.Identificacion
 {
+    /// <summary>
+    /// Esta página será visible unicamente para
+    /// </summary>
     public class CreateModel : PageModel
     {
         private readonly control.personal.Data.ApplicationDbContext _context;
@@ -20,11 +23,17 @@ namespace control.personal.Pages.Identificacion
             _context = context;
         }
 
-        public IActionResult OnGet()
+        public IActionResult OnGet(string uid)
         {
+            if (uid == null)
+            {
+                return NotFound();
+            }
             ViewData["idUsuario"] = new SelectList(_context.Users, "Id", "Nombre");
             ViewData["IdEstado"] = new SelectList(Enum.GetNames(typeof(EstadoIdentificacion)).ToList());
             ViewData["IdTipo"] = new SelectList(Enum.GetNames(typeof(TipoRFID)).ToList());
+            Identificacion= new Models.Identificacion();
+            Identificacion.Uid = uid;
             return Page();
         }
 

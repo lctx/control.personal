@@ -124,7 +124,9 @@ namespace control.personal.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    var telegram = await _telegramService.SendMessage(MensajeConfirmacion(callbackUrl, Input.Nombre));
+                    var telegram = await _telegramService.SendMessage(
+                                    _telegramService.UrlBodyFormateado(callbackUrl, $"Verifique la cuenta de {Input.Nombre} con el siguiente enlace", "Enlace")
+                                    );
                     string mensaje = "Registro no enviado a telegram";
                     if (String.Equals(telegram.ToLower(), "ok"))
                     {
@@ -147,25 +149,6 @@ namespace control.personal.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
-        }
-        public TelegramBodyMessaje MensajeConfirmacion(string callbackUrl, string nombre)
-        {
-            var _inline_keyboard = new List<List<TelegramInlineKeyboard>>();
-            var tmp = new List<TelegramInlineKeyboard>();
-            //telegram no acepta como url valida localhost, por eso debo cambiar a 127.0.0.1
-            if (callbackUrl.Contains("localhost"))
-            {
-                callbackUrl = Regex.Replace(callbackUrl, "localhost", "127.0.0.1");
-            }
-            tmp.Add(new TelegramInlineKeyboard() { text = "Enlace", url = new Uri(callbackUrl) });
-            _inline_keyboard.Add(tmp);
-            return new TelegramBodyMessaje()
-            {
-                chat_id = int.Parse(_configuration["Telegram:Chatid"]),
-                text = $"Verifique la cuenta de {nombre} con el siguiente enlace",
-                parse_mode = "Markdown",
-                reply_markup = new TelegramReplyMarkup() { inline_keyboard = _inline_keyboard }
-            };
         }
     }
 }

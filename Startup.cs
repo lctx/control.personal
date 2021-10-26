@@ -18,6 +18,7 @@ using control.personal.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using control.personal.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace control.personal
 {
@@ -71,6 +72,10 @@ namespace control.personal
             });
             services.AddAuthorization(options =>
             {
+                //habilitación para requerir un usuario logeado para acceder a la app
+                /*options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();*/
                 options.AddPolicy("API", policy =>
                 {
                     policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);

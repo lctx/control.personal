@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using control.personal.Data;
 using control.personal.Models;
 using control.personal.Utils;
+using control.personal.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace control.personal.Controllers
 {
@@ -16,10 +19,17 @@ namespace control.personal.Controllers
     public class RegistroController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly TelegramService _telegramService;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<RegistroController> _logger;
 
-        public RegistroController(ApplicationDbContext context)
+        public RegistroController(ApplicationDbContext context, IConfiguration configuration,
+            TelegramService telegramService, ILogger<RegistroController> logger)
         {
             _context = context;
+            _configuration = configuration;
+            _telegramService = telegramService;
+            _logger = logger;
         }
 
         // GET: api/Registro
@@ -92,6 +102,14 @@ namespace control.personal.Controllers
                 //en este if se debe hacer el proceso para generar la url que se envia a administracion para asociar el uid a un usuario
                 //puede usarse esto https://docs.microsoft.com/es-es/aspnet/core/fundamentals/http-requests?view=aspnetcore-5.0
                 // con un cliente con tipo registrado en startup
+                var _url = Url.Page(
+                    "/Identificacion/Create",
+                    pageHandler: null,
+                    values: new { uid = uid },
+                    protocol: Request.Scheme
+                    );
+                var telegram = await _telegramService.SendMessage(_telegramService.UrlBodyFormateado(_url, "Nueva identificación detectada", "Registro"));
+                _logger.LogInformation(telegram);
                 return new JsonResult(new Respuesta() { Error = "Identificación no encontrada" });
             }
             if (UsuarioIdentificado.Identificaciones

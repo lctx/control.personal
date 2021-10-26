@@ -7,6 +7,7 @@ namespace control.personal.Models
     {
         [Key]
         public int id { get; set; }
+        [Display(Name = "Usuario")]
         public string idUsuario { get; set; }
         [Required]
         public string Uid { get; set; }
