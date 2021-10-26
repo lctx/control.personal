@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using control.personal.Models;
 
 namespace control.personal.Services
 {
@@ -12,11 +16,38 @@ namespace control.personal.Services
         {
             //client.BaseAddress = new Uri("http://api.telegram.org/bot1813881217:AAEktg5iiCsUBJ0SNZy6TpTQ_9D27n3BeKc");
             Client = client;
-            //$"http://api.telegram.org/bot1813881217:AAEktg5iiCsUBJ0SNZy6TpTQ_9D27n3BeKc/sendMessage?chat_id=-500625102&text=La%20cámara%20{log.Camara}%20recibió%20un%20log%20de%20tipo%20{log.Level}%20que%20dice%20{log.Body}"
         }
-        public async Task<string> SendText(string Message){
-            var result=await Client.PostAsync(Client.BaseAddress+"/sendMessage?chat_id=-500625102&text="+Regex.Replace(Message,@"s","%20"),null);
+        public async Task<string> SendMessage(string Message)
+        {
+            var messageBody = new StringContent(
+                JsonSerializer.Serialize(
+                    new TelegramBodyMessaje()
+                    {
+                        chat_id = -500625102,
+                        text = Message,
+                        parse_mode = "Markdown",
+                    }, new JsonSerializerOptions(){}),
+                Encoding.UTF8,
+                "application/json"
+            );
+            Console.WriteLine(messageBody.ReadAsStringAsync().Result);
+            var result = await Client.PostAsync(Client.BaseAddress + "/sendMessage", messageBody);
+            Console.WriteLine("-------------- \n" + result.Content.ReadAsStringAsync().Result);
+            return result.StatusCode.ToString();
+        }
+
+        public async Task<string> SendMessage(TelegramBodyMessaje Message)
+        {
+            //telegram no acepta como url valida localhost, por eso debo cambiar a 127.0.0.1
+            var messageBody = new StringContent(
+                JsonSerializer.Serialize(
+                    Message),
+                Encoding.UTF8,
+                "application/json"
+            );
+            var result = await Client.PostAsync(Client.BaseAddress + "/sendMessage", messageBody);
             return result.StatusCode.ToString();
         }
     }
+
 }

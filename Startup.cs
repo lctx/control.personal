@@ -92,7 +92,9 @@ namespace control.personal
             });
             services.AddRazorPages();
             services.AddHttpClient<TelegramService>
-                (x => x.BaseAddress= new Uri("http://api.telegram.org/bot"+Configuration["Telegram:Botid"]));
+                (x =>
+                //si uso http salta un  bad request
+                x.BaseAddress = new Uri("https://api.telegram.org/bot" + Configuration["Telegram:Botid"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

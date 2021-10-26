@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using control.personal.Services;
+using System.Text.RegularExpressions;
 
 namespace control.personal.Areas.Identity.Pages.Account
 {
@@ -27,6 +29,7 @@ namespace control.personal.Areas.Identity.Pages.Account
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly TelegramService _telegramService;
 
         public RegisterModel(
             UserManager<Usuario> userManager,
@@ -34,7 +37,8 @@ namespace control.personal.Areas.Identity.Pages.Account
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            TelegramService telegramService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -42,6 +46,7 @@ namespace control.personal.Areas.Identity.Pages.Account
             _emailSender = emailSender;
             _roleManager = roleManager;
             _configuration = configuration;
+            _telegramService = telegramService;
         }
 
         [BindProperty]
@@ -81,6 +86,7 @@ namespace control.personal.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            //var telegram = await _telegramService.SendMessage("https://telegrambots.github.io/book/2/send-msg/other-msg.html");
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -118,17 +124,19 @@ namespace control.personal.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    var telegram = await _telegramService.SendMessage(MensajeConfirmacion(callbackUrl, Input.Nombre));
+                    string mensaje = "Registro no enviado a telegram";
+                    if (String.Equals(telegram.ToLower(), "ok"))
                     {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                        mensaje = "Registro enviado a telegram";
+                        _logger.LogInformation(mensaje);
+                        return Redirect("~/");
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        //si por algun motivo no se puede enviar el enlace a telegram se puede usar la pagina para el registro por defecto
+                        _logger.LogInformation(mensaje);
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                     }
                 }
                 foreach (var error in result.Errors)
@@ -139,6 +147,25 @@ namespace control.personal.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+        public TelegramBodyMessaje MensajeConfirmacion(string callbackUrl, string nombre)
+        {
+            var _inline_keyboard = new List<List<TelegramInlineKeyboard>>();
+            var tmp = new List<TelegramInlineKeyboard>();
+            //telegram no acepta como url valida localhost, por eso debo cambiar a 127.0.0.1
+            if (callbackUrl.Contains("localhost"))
+            {
+                callbackUrl = Regex.Replace(callbackUrl, "localhost", "127.0.0.1");
+            }
+            tmp.Add(new TelegramInlineKeyboard() { text = "Enlace", url = new Uri(callbackUrl) });
+            _inline_keyboard.Add(tmp);
+            return new TelegramBodyMessaje()
+            {
+                chat_id = int.Parse(_configuration["Telegram:Chatid"]),
+                text = $"Verifique la cuenta de {nombre} con el siguiente enlace",
+                parse_mode = "Markdown",
+                reply_markup = new TelegramReplyMarkup() { inline_keyboard = _inline_keyboard }
+            };
         }
     }
 }
