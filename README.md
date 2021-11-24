@@ -1,6 +1,7 @@
 # control de personal
-Sistema de control para ingreso de personal
+Sistema de control para ingreso de personal haciendo uso de tarjetas RFID
 ### Test
+En caso de errores generar los archivos appsettings.Production.json y/o appsettings.Develoment.json con los mismos campos que appsettings.json
 En caso de requerir testear con la base de producción utilizar el siguiente codigo, el cual esta configurado en launchSettings.json
 >  dotnet run --launch-profile productionTest 
 ----------
@@ -29,6 +30,7 @@ Para cambiar los mensajes en las validaciones se cambiaron en jquery.validate.js
 Para el registro de identificaciones se utilizan:
 1.  un controlador de tipo api en la que se recibe una cadena con la uid, en caso de que dicha uid este asociada a un usuario se almacena un registro, caso contrario se genera un enlace que será enviado a un administrador para que se cree un objeto Identificacion con dicho uid y un usuario
 2. una vista razor en la que el administrador pueda asociar un uid y un usuario
+3. en la vista razor para modificar dicha identificación se puede, y debería, escribir un json con los datos personales del usuario que tiene asignada dicha identificación
 ## API
 Consta de un método post
 - Uso de jwt para seguridad, solo debe poder usar el método un usuario con rol 'Sensor'
@@ -42,7 +44,7 @@ Consta de un método post
         2. Si no está activa se envía por telegram un aviso del uso de una tarjeta desactivada y devuelve un "Error tarjeta inactiva"
 
 ## Vista 
-Consta de un formulario para la asociacion de un uid a un usuario existente (podria generar uno nuevo si no existe)
+Consta de un formulario para la asociacion de un uid a un usuario existente
 - Solo debe ser accesible para administradores
 - El campo uid debe ser capturado por un get
 - Antes de cargar el formulario verifica si existe dicho uid en la base de datos
@@ -59,4 +61,7 @@ Consta de un formulario para la asociacion de un uid a un usuario existente (pod
     - tambien se puede hacer una pagina en la que cada usuario pueda desactivar sus identificaciones 
     - crear un método que sea accesible por administración (debería ser accedida por una aplicación movil) y que reciba el uid para desactivarlo al leer la identificación
         - puede usar esto https://googlechrome.github.io/samples/web-nfc/
-    
+# Mejoras
+## Refactorizaciones
+### Javascript
+- El método Scan usado para leer las etiquetas nfc se repite por lo que debe ser mejorado

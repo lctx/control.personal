@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using control.personal.Services;
 using System.Text.RegularExpressions;
+using control.personal.Data;
 
 namespace control.personal.Areas.Identity.Pages.Account
 {
@@ -30,6 +31,7 @@ namespace control.personal.Areas.Identity.Pages.Account
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly TelegramService _telegramService;
+        private readonly ApplicationDbContext _context;
 
         public RegisterModel(
             UserManager<Usuario> userManager,
@@ -38,7 +40,8 @@ namespace control.personal.Areas.Identity.Pages.Account
             IEmailSender emailSender,
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration,
-            TelegramService telegramService)
+            TelegramService telegramService,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -47,11 +50,11 @@ namespace control.personal.Areas.Identity.Pages.Account
             _roleManager = roleManager;
             _configuration = configuration;
             _telegramService = telegramService;
+            _context = context;
         }
 
         [BindProperty]
         public InputModel Input { get; set; }
-
         public string ReturnUrl { get; set; }
 
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
@@ -64,7 +67,7 @@ namespace control.personal.Areas.Identity.Pages.Account
             public string Email { get; set; }
 
             [Required]
-            [StringLength(100, ErrorMessage = "El {0} deberia tener al menos {2} y maximo {1} cracteres", MinimumLength = 6)]
+            [StringLength(100, ErrorMessage = "El {0} deberia tener al menos {2} y maximo {1} caracteres", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
@@ -84,7 +87,7 @@ namespace control.personal.Areas.Identity.Pages.Account
             public string Nombre { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync( string returnUrl = null)
         {
             //var telegram = await _telegramService.SendMessage("https://telegrambots.github.io/book/2/send-msg/other-msg.html");
             ReturnUrl = returnUrl;
@@ -93,6 +96,15 @@ namespace control.personal.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            #region validacionCedula
+            //si existe un usuario con dicha cedula procedemos a redirigir a la misma pagina pero con un error
+            //esto puede hacerse con un custom validator https://docs.microsoft.com/en-us/aspnet/core/mvc/models/validation?view=aspnetcore-5.0
+            if (_context.Users.Any(x => String.Equals(x.Cedula, Input.Cedula)))
+            {
+                ModelState.AddModelError(string.Empty, "Cedula ya utilizada");
+                return Page();
+            }
+            #endregion
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)

@@ -117,8 +117,9 @@ namespace control.personal.Controllers
                 .Select(x => x.Estado)
                 .FirstOrDefault() == EstadoIdentificacion.Activa)
             {
-                //Crear un objeto de tipo registro y guardarlo en bd 
-                Registro registro = new Registro() { FechaHora = DateTime.Now, idUsuario = UsuarioIdentificado.Id };
+                //Crear un objeto de tipo registro y guardarlo en bd
+                //talvez deba generar tambien un controlingreso 
+                Registro registro = new Registro() { FechaHora = DateTime.Now, idUsuario = UsuarioIdentificado.Id, ControlIngresos = new ControlIngreso() };
                 await _context.Registro.AddAsync(registro);
                 var result = await _context.SaveChangesAsync();
                 return new JsonResult(new Respuesta() { FechaHora = DateTime.Now.ToString(), Nombre = UsuarioIdentificado.Nombre });

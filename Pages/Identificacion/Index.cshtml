@@ -5,55 +5,162 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>Index</title>
 </head>
+
 <body>
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Identificacion[0].Uid)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Identificacion[0].Estado)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Identificacion[0].Tipo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Identificacion[0].Usuario)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Identificacion) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Uid)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Estado)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Tipo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Usuario.Nombre)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <!-- Modal -->
+    <div class="modal fade" id="crearModal" tabindex="-1" aria-labelledby="crearModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="crearModalLabel">Escaneo de identificaciones</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-6 col-6">
+                                Identificación:
+                            </div>
+                            <div class="col-md-6 col-6">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon1">@@</span>
+                                    </div>
+                                    <input type="text" class="form-control" id="identificacion"
+                                        placeholder="00:ff:00:ff" aria-label="identificacion" readonly
+                                        aria-describedby="basic-addon1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mx-auto">
+                            <button id="btnRead" class="btn btn-danger btn-block">Escanear</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer mx-auto">
+                    <div class="col-4">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    </div>
+                    <div class="col-8">
+                        <a class="btn btn-primary" asp-page="Create" id="enlace">Crear identificación</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p>
+        <button type="button" id="launchModal" class="btn btn-primary" data-toggle="modal" data-target="#crearModal">
+            Nueva
+        </button>
+        @*<a asp-page="Create" id="enlace">Create New</a>*@
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Identificacion[0].Uid)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Identificacion[0].Estado)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Identificacion[0].Tipo)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Identificacion[0].Usuario)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Identificacion)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Uid)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Estado)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Tipo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Usuario.Nombre)
+                    </td>
+                    <td>
+                        <a asp-page="./Edit" asp-route-id="@item.id">Edit</a> |
+                        <a asp-page="./Details" asp-route-id="@item.id">Details</a> |
+                        <a asp-page="./Delete" asp-route-id="@item.id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </body>
+@section Scripts {
+<script type="text/javascript">
+    boton = document.querySelector('#launchModal');
+    if (("NDEFReader" in window) == false) {
+        //No se encuentra la funcion para nfc por lo que se oculta el boton de crear
+        boton.hidden = true;
+    } else {
+        btnRead = document.querySelector('#btnRead');
+        btnRead.onclick = Scan;
+    }
+    message = undefined;
+    async function Scan() {
+        const ndef = new NDEFReader();
+        const ctrl = new AbortController();
+        try {
+            await ndef.scan({ signal: ctrl.signal });
+            ndef.onreading = event => {
+                message = event;
+                const decoder = new TextDecoder();
+                for (const record of event.message.records) {
+                    console.log("Record type:  " + record.recordType);
+                    console.log("MIME type:    " + record.mediaType);
+                    //console.log("=== data ===\n" + decoder.decode(record.data));
+                }
+                identificacion = document.querySelector('#identificacion')
+                identificacion.value = event.serialNumber
+                enlace = document.querySelector('#enlace')
+                enlace.href += ('?uid=' + event.serialNumber)
+                console.log(event.serialNumber)
+                setTimeout(() => ctrl.abort(), 3_000);
+                ctrl.signal.onabort = () => {
+                    console.log("We're done waiting for NDEF messages.");
+                };
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    /*function read() {
+        const ndef = new NDEFReader();
+        return new Promise((resolve, reject) => {
+            const ctlr = new AbortController();
+            ctlr.signal.onabort = reject;
+            ndef.addEventListener("reading", event => {
+                resolve(event);
+                ctlr.abort();
+            }, { once: true });
+            ndef.scan({ signal: ctlr.signal }).catch(err => reject(err));
+        });
+    }
+    read().then(({ serialNumber }) => {
+        console.log(serialNumber);
+    });*/
+
+</script>
+}
+
 </html>

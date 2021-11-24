@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using control.personal.Data;
 using control.personal.Models;
+using control.personal.Utils;
+using System.Text.Json;
 
 namespace control.personal.Pages.Identificacion
 {
@@ -37,7 +39,12 @@ namespace control.personal.Pages.Identificacion
             {
                 return NotFound();
             }
-           ViewData["idUsuario"] = new SelectList(_context.Users, "Id", "Id");
+
+            ViewData["idUsuario"] = new SelectList(_context.Users, "Id", "Nombre");
+            ViewData["IdEstado"] = new SelectList(Enum.GetNames(typeof(EstadoIdentificacion)).ToList());
+            ViewData["IdTipo"] = new SelectList(Enum.GetNames(typeof(TipoRFID)).ToList());
+            //ViewData["Usuario"] = new JsonResult(new { Propietario = Identificacion.Usuario.Nombre, Email = Identificacion.Usuario.Email });
+            ViewData["Usuario"] = JsonSerializer.Serialize(new { Propietario = Identificacion.Usuario.Nombre, Email = Identificacion.Usuario.Email });
             return Page();
         }
 
@@ -49,9 +56,13 @@ namespace control.personal.Pages.Identificacion
             {
                 return Page();
             }
-
-            _context.Attach(Identificacion).State = EntityState.Modified;
-
+            #region actualizacion_entidad
+            //al usar sqlite como bd se requirio buscar la identificacion para a esta modificarla y guardarla
+            var _identificacion = await _context.Identificacion.Where(x => x.id == Identificacion.id).FirstOrDefaultAsync();
+            _identificacion.Estado = Identificacion.Estado;
+            _identificacion.Tipo = Identificacion.Tipo;
+            _context.Attach(_identificacion).State = EntityState.Modified;
+            #endregion
             try
             {
                 await _context.SaveChangesAsync();

@@ -54,7 +54,17 @@ namespace control.personal
                     );
             }
             services.AddDatabaseDeveloperPageExceptionFilter();
-            services.AddDefaultIdentity<Usuario>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<Usuario>
+                (options =>
+                    {
+                        //configuracion para desabilitar el uso de una contraseña segura para asignar una contraseña por defecto 
+                        options.SignIn.RequireConfirmedAccount = true;
+                        options.Password.RequireDigit = false;
+                        options.Password.RequiredLength = 4;
+                        options.Password.RequiredUniqueChars = 0;
+                        options.Password.RequireNonAlphanumeric = false;
+                        options.Password.RequireUppercase = false;
+                    })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddAuthentication(options => options.RequireAuthenticatedSignIn = true)
@@ -89,6 +99,10 @@ namespace control.personal
                 options.AddPolicy("Politica-Empleado", policy =>
                 {
                     policy.RequireRole("Empleado");
+                });
+                options.AddPolicy("Politica-AdministracionIdentificaciones", policy =>
+                {
+                    policy.RequireUserName(Configuration["Administracion:Identificaciones"]);
                 });
             });
             services.AddMvc(options =>

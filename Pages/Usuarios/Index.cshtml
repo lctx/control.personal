@@ -1,0 +1,44 @@
+@page
+@model control.personal.Pages.Usuarios.IndexModel
+@{
+    
+}
+
+<h1>Usuarios</h1>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">
+                    Usuario
+                </th>
+                <th scope="col">
+                    Roles
+                </th>
+                <th scope="col">
+                    Acciones
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Usuarios)
+            {
+                <tr>
+                    <td scope="row">
+                        @Html.Raw(item.Usuario.Nombre)
+                    </td>
+                    <td scope="row">
+                        @String.Join(" , ", item.Roles)
+                    </td>
+                    <td scope="row">
+                        <a asp-page="./Edit" asp-route-email="@item.Usuario">Editar</a>
+                        @if (!item.Roles.Contains("Administrador"))
+                        {
+                           @Html.Raw("|") <a asp-page="./Delete" asp-route-email="@item.Usuario.Email" asp-route-nombre="@item.Usuario.Nombre">Eliminar</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

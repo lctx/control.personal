@@ -1,0 +1,44 @@
+@page
+@model control.personal.Pages.Usuarios.EditModel
+<h1>Editar</h1>
+<form method="POST">
+    <div class="card">
+        <div class="card-header">
+            <h2>Manejo de Roles</h2>
+            <h3>@Model.Usuario.Nombre</h3>
+        </div>
+    </div>
+    <div class="card-body">
+        <input type="hidden" asp-for="Usuario.Email" />
+        @for (int i = 0; i < Model.Roles.Count; i++)
+        {
+            <div class="form-check m-1">
+                <input type="hidden" asp-for="Roles[i].RoleId" />
+                <input type="hidden" asp-for="Roles[i].RoleName" />
+                @if (Model.Usuario.Email == Model._configuration["Administracion:General"] && Model.Roles[i].RoleName == "Administrador")
+                {
+                    <input asp-for="Roles[i].Elejido" class="form-check-input" type="hidden" />
+                    @if (Model.Roles[i].Elejido)
+                    {
+                        <input class="form-check-input" type="checkbox" checked disabled readonly>
+                    }
+                    else
+                    {
+                        <input class="form-check-input" type="checkbox" disabled readonly>
+                    }
+                }
+                else
+                {
+                    <input asp-for="Roles[i].Elejido" class="form-check-input" />
+                }
+                <label class="form-check-label" asp-for="Roles[i].Elejido">
+                    @Model.Roles[i].RoleName
+                </label>
+            </div>
+        }
+
+    </div>
+    <div class="card-footer">
+        <input type="submit" value="Actualizar" class="btn btn-primary" style="width:auto" />
+    </div>
+</form>

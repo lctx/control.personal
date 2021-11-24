@@ -13,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace control.personal.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -55,12 +55,6 @@ namespace control.personal.Controllers
                     {
                         _tmpRoles.Add(new Claim(ClaimTypes.Role, rol));
                     }
-                    /*var claims = new[]
-                    {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim(ClaimTypes.Email, user.Email)
-                    };*/
-
                     ClaimsIdentity claimsId = new ClaimsIdentity(_tmpRoles);
                     var tokenDescriptor = new SecurityTokenDescriptor
                     {

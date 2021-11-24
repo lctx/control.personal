@@ -1,0 +1,24 @@
+@page
+@model control.personal.Pages.Usuarios.DeleteModel
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Delete</title>
+</head>
+
+<body>
+    <h3>¿Esta seguro de eliminar el usuario @Model.Nombre ?</h3>
+    <div>
+        <form method="post">
+            <input type="hidden" asp-for="Email" />
+            <input type="submit" value="Eliminar" class="btn btn-danger" /> |
+            <a asp-page="./Index">Usuarios</a>
+        </form>
+    </div>
+</body>
+
+</html>

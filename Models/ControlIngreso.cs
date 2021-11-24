@@ -18,7 +18,7 @@ namespace control.personal.Models
         public bool ManoLimpias { get; set; }
         [Display(Name = "Sin Accesorios")]
         public bool ManoSinAccesorios { get; set; }
-        [Display(Name = "Observaciónes")]
+        [Display(Name = "Observaciones")]
         public string Observaciones { get; set; }
         [Display(Name = "Responsable")]
         public string Responsable { get; set; }

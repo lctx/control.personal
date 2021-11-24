@@ -1,0 +1,243 @@
+@page
+@model control.personal.Pages.Registro.IndexModel
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+
+<body>
+    <!-- Modal -->
+    <div class="modal fade" id="nfcModal" tabindex="-1" role="dialog" aria-labelledby="nfcModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-center" id="nfcModalLabel">Registro de entrada</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body container">
+                    <input type="hidden" id="staticUID" />
+                    <div class="form-group row">
+                        <label for="staticNombre" class="col-sm-2 col-form-label">Nombre</label>
+                        <div class="col-sm-10">
+                            <input type="text" readonly class="form-control" id="staticNombre" placeholder="Juanito">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
+                        <div class="col-sm-10">
+                            <input type="email" readonly class="form-control" id="staticEmail"
+                                placeholder="email@email.com">
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="staticGuardar">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <ul class="nav justify-content-end">
+            <li class="nav-item">
+                <a class="nav-link" asp-page="Create">Create New</a>
+            </li>
+            <li class="nav-item">
+                @if (Model.administradorIdentificaciones)
+                {
+                    <button type="button" class="btn btn-warning" data-toggle="modal" id="nfcModalButton"
+                    data-target="#nfcModal">
+                        Nuevo ingreso
+                    </button>
+                }
+            </li>
+        </ul>
+        <div class="row">
+            <form asp-action="Index" method="get">
+                <div class="form-actions no-color">
+                    <p>
+                        Fecha: <input type="date" name="fecha" value="@ViewData["fecha"]" />
+                        <input type="submit" value="Buscar" class="btn btn-success" /> |
+                        <a asp-page="Index" class="btn btn-link" asp-route-fecha="">Limpiar</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.RegistroPaginado[0].FechaHora)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.RegistroPaginado[0].Usuario.Nombre)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.RegistroPaginado)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FechaHora)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Usuario.Nombre)
+                            </td>
+                            <td>
+                                <a class="badge badge-warning" asp-page="./Edit" asp-route-id="@item.id">Editar</a> |
+                                <button class="badge badge-success" type="button" data-toggle="collapse"
+                                data-target='@Html.Raw("#collapse"+item.id)' aria-expanded="false"
+                                aria-controls='@Html.Raw("collapse"+item.id)'>
+                                    Detalles
+                                </button>|
+                                <a class="badge badge-danger" asp-page="./Delete" asp-route-id="@item.id">Eliminar</a> |
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <div class="collapse" id='@Html.Raw("collapse"+item.id)'>
+                                    <div class="card card-body">
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col">
+                                                    @Html.DisplayNameFor(model => item.ControlIngresos.UniformeCompleto)
+                                                </div>
+                                                <div class="col">
+                                                    @Html.DisplayNameFor(model => item.ControlIngresos.UniformeLimpio)
+                                                </div>
+                                                <div class="col">
+                                                    @Html.DisplayNameFor(model => item.ControlIngresos.UniformeColocadoBien)
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    @Html.DisplayFor(model => item.ControlIngresos.UniformeCompleto)
+                                                </div>
+                                                <div class="col">
+                                                    @Html.DisplayFor(model => item.ControlIngresos.UniformeLimpio)
+                                                </div>
+                                                <div class="col">
+                                                    @Html.DisplayFor(model => item.ControlIngresos.UniformeColocadoBien)
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    @Html.DisplayNameFor(model => item.ControlIngresos.ManoLimpias)
+                                                </div>
+                                                <div class="col">
+                                                    @Html.DisplayNameFor(model => item.ControlIngresos.ManoSinAccesorios)
+                                                </div>
+                                                <div class="col">
+                                                    @Html.DisplayNameFor(model => item.ControlIngresos.Responsable)
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    @Html.DisplayFor(model => item.ControlIngresos.ManoLimpias)
+                                                </div>
+                                                <div class="col">
+                                                    @Html.DisplayFor(model => item.ControlIngresos.ManoSinAccesorios)
+                                                </div>
+                                                <div class="col">
+                                                    @Html.DisplayFor(model => item.ControlIngresos.Responsable)
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    @Html.DisplayNameFor(model => item.ControlIngresos.Observaciones)
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    @Html.DisplayFor(model => item.ControlIngresos.Observaciones)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            @{
+                var prevDisabled = !Model.RegistroPaginado.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.RegistroPaginado.HasNextPage ? "disabled" : "";
+            }
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item @prevDisabled">
+                        <a class="page-link " asp-page="Index"
+                            asp-route-pageNumber="@(Model.RegistroPaginado.PageIndex - 1)"
+                            asp-route-fecha="@ViewData["fecha"]">Anterior</a>
+                    </li>
+                    <li class="page-item @nextDisabled">
+                        <a class="page-link " asp-page="Index"
+                            asp-route-pageNumber="@(Model.RegistroPaginado.PageIndex + 1)"
+                            asp-route-fecha="@ViewData["fecha"]">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+
+</body>
+@section Scripts{
+<script>
+    boton = document.querySelector('#nfcModalButton');
+    boton.onclick = Scan
+    var usuario = undefined
+    //este boton debe llamar al controlador api/registro y enviar el uid para su validación
+    staticGuardar = document.querySelector("#staticGuardar")
+    //boton.hidden = !("NDEFReader" in window);
+    //refactorizar esta funcion
+    async function Scan() {
+        staticNombre = document.querySelector("#staticNombre")
+        staticEmail = document.querySelector("#staticEmail")
+        staticUID = document.querySelector("#staticUID")
+        const ndef = new NDEFReader();
+        const ctrl = new AbortController();
+        try {
+            await ndef.scan({ signal: ctrl.signal });
+            ndef.onreading = event => {
+                message = event;
+                const decoder = new TextDecoder();
+                for (const record of event.message.records) {
+                    if (record.mediaType == "application/json") {
+                        usuario = JSON.parse(decoder.decode(record.data))
+                        staticNombre.value = usuario.Propietario
+                        staticEmail.value = usuario.Email
+                        staticUID.value = event.serialNumber
+                    }
+                }
+                console.log(event.serialNumber)
+                setTimeout(() => ctrl.abort(), 3_000);
+                ctrl.signal.onabort = () => {
+                    console.log("We're done waiting for NDEF messages.");
+                };
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    //$("#exampleModal").modal("show");
+</script>
+}
+
+</html>

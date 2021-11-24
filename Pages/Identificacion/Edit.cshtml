@@ -6,49 +6,106 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>Edit</title>
 </head>
+
 <body>
 
-<h4>Identificacion</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Identificacion.id" />
-            <div class="form-group">
-                <label asp-for="Identificacion.idUsuario" class="control-label"></label>
-                <select asp-for="Identificacion.idUsuario" class="form-control" asp-items="ViewBag.idUsuario"></select>
-                <span asp-validation-for="Identificacion.idUsuario" class="text-danger"></span>
+    <h4>Identificacion</h4>
+    <hr />
+    <div>
+        <form method="post" class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Identificacion.id" />
+                    <div class="form-group">
+                        <label asp-for="Identificacion.Usuario.Nombre" class="control-label"></label>
+                        <input asp-for="Identificacion.Usuario.Nombre" class="form-control" readonly />
+                        <span asp-validation-for="Identificacion.idUsuario" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Identificacion.Uid" class="control-label"></label>
+                        <input asp-for="Identificacion.Uid" class="form-control" readonly />
+                        <span asp-validation-for="Identificacion.Uid" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Identificacion.Estado" class="control-label"></label>
+                        <select asp-for="Identificacion.Estado" class="form-control"
+                            asp-items="ViewBag.idEstado"></select>
+                        <span asp-validation-for="Identificacion.Estado" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Identificacion.Tipo" class="control-label"></label>
+                        <select asp-for="Identificacion.Tipo" class="form-control" asp-items="ViewBag.idTipo"></select>
+                        <span asp-validation-for="Identificacion.Tipo" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Identificacion.Uid" class="control-label"></label>
-                <input asp-for="Identificacion.Uid" class="form-control" />
-                <span asp-validation-for="Identificacion.Uid" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Identificacion.Estado" class="control-label"></label>
-                <select asp-for="Identificacion.Estado" class="form-control"></select>
-                <span asp-validation-for="Identificacion.Estado" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Identificacion.Tipo" class="control-label"></label>
-                <select asp-for="Identificacion.Tipo" class="form-control"></select>
-                <span asp-validation-for="Identificacion.Tipo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+            <div class="row container">
+                <div class="form-group">
+                    <button class="btn btn-warning" id="buttonWrite" onclick="Scan()" type="button">Escribir</button>
+                    <input type="submit" value="Guardar" class="btn btn-primary" />
+                    <a class="btn btn-link" asp-page="./Index">Back to List</a>
+                </div>
             </div>
         </form>
-    </div>
-</div>
+        @section Scripts{
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+        <script>
+            var usuario = '@Html.Raw(ViewData["Usuario"])';
+            async function Scan() {
+                const ndef = new NDEFReader();
+                const ctrl = new AbortController();
+                ndef.onreading = (event) => {
+                    console.log("We read a tag!")
+                    setTimeout(() => ctrl.abort(), 5_000);
+                    ctrl.signal.onabort = () => {
+                        console.log("We're done waiting for NDEF messages.");
+                    };
+                };
 
-<div>
-    <a asp-page="./Index">Back to List</a>
-</div>
+                async function write({ timeout } = {}) {
+                    return new Promise((resolve, reject) => {
+                        toastr.warning("Escribiendo identificación")
+                        const encoder = new TextEncoder();
+                        ctrl.signal.onabort = () => reject("Time is up, bailing out!");
+                        setTimeout(() => ctrl.abort(), timeout);
 
+                        ndef.addEventListener("reading", event => {
+                            ndef.write({
+                                records: [
+                                    {
+                                        recordType: "mime",
+                                        mediaType: "application/json",
+                                        data: encoder.encode(usuario)
+                                    }
+                                ], signal: ctrl.signal
+                            }).then(resolve, reject);
+                        }, { once: true });
+                    });
+                }
+
+                await ndef.scan({ signal: ctrl.signal });
+                try {
+                    // Let's wait for 5 seconds only.
+                    await write({ timeout: 5_000 });
+                    toastr.clear()
+                    toastr.success("Identificación escrita")
+                } catch (err) {
+                    //console.error("Something went wrong", err);
+                    toastr.clear()
+                    toastr.error('Error, por favor intente de nuevo')
+                }
+            }
+        </script>
+        }
 </body>
+
 </html>

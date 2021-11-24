@@ -9,6 +9,7 @@ namespace control.personal.Models
     {
         [Key]
         public int id { get; set; }
+        [Display(Name = "Fecha")]
         public DateTime FechaHora { get; set; }
         public string idUsuario { get; set; }
         public virtual ControlIngreso ControlIngresos { get; set; }
