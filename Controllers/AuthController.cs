@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using control.personal.Models;
+using control.personal.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,7 @@ namespace control.personal.Controllers
 
         /// <summary>
         /// Método para generar el token basado en las credenciales recibidas
+        /// utilizable solo por usuarios que posean el rol sensor
         /// </summary>
         /// <param name="credenciales"></param>
         /// <returns></returns>
@@ -37,12 +39,21 @@ namespace control.personal.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> LoginAsync([FromBody] Credenciales credenciales)
         {
+            if (String.IsNullOrEmpty(credenciales.Email) || String.IsNullOrEmpty(credenciales.Password))
+            {
+                return StatusCode(404);
+            }
             Usuario user = await _userManager.FindByEmailAsync(credenciales.Email);
             var secretKey = _configuration.GetValue<string>("SecretKey");
             var key = Encoding.ASCII.GetBytes(secretKey);
             if (user != null)
             {
 
+                if (!await _userManager.IsInRoleAsync(user, Roles.Sensor.ToString()))
+                {
+                    //validación para evitar que cualquier usuario pueda generar un token
+                    return StatusCode(401);
+                }
                 var result = await _signInManager.CheckPasswordSignInAsync(user, credenciales.Password, false);
 
                 if (result.Succeeded)
